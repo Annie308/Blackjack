@@ -1,12 +1,9 @@
 #include "global.h"
-#include "helpers.h"
 #include "simulation.h"
 #include "game.h"
 
 using namespace std;
 using Reward = double;
-
-mt19937 rng;
 
 int add(int x, int y) {
     return x + y;
@@ -17,17 +14,15 @@ void Game::deal() {
     uniform_int_distribution<int>dist(0, 51);
     int i = dist(rng);
     hand.push_back(cards[i]);
-    
-    if (act == ACTION::SPLIT){
-        int j = dist(rng);
-        hand_2.push_back(cards[j]);
-    }
+    card_val = get_hand_val();
 }
 void Game::show_hand() {
-    for (auto h : hand) {
-        cout << h << " ";
+    if (verbose) {
+        for (auto h : hand) {
+            cout << h << " ";
+        }
+        cout << "TOTAL: " << card_val << endl;
     }
-    cout << "TOTAL: " << card_val << endl;
 }
 int Game::get_hand_val() {
     int c = 0;
@@ -35,136 +30,245 @@ int Game::get_hand_val() {
         int face = (h.size() == 3) ? 10 : card_vals[h[0]];
         c += face;
     }
-    card_val = c;
-    return card_val;
+    return c;
 }
-void Game::hit() { act = ACTION::HIT; deal(); }
-void Game::stand() { act = ACTION::STAND; }
+void Game::hit() { 
+    act = Action::HIT; 
+    deal(); 
+}
+void Game::stand() { act = Action::STAND; }
+void Game::clear_hand(){ hand = {};}
 
 /*===================== PLAYER CLASS SETUP =================*/
 
-Player::Player(double _cash) : cash(_cash) { old_cash = cash; }
+Player::Player(double _cash) : cash(_cash) { 
+    old_cash = cash; 
+    card_val = get_hand_val();
+}
 
 void Player::show_hand() {
+    if (verbose) cout <<"YOUR HAND: ";
     Game::show_hand();
-    cout << "     ";
-    for (auto h : hand_2) {
-        cout << h << " ";
-    }
-    cout << endl;
-    cout << "BET AMOUNT: " << bet_amt * old_cash << "   CASH REMAINING: " << cash << '\n' << endl;
+    if (verbose) cout << "BET AMOUNT: " << bet_amt * cash << "   CASH REMAINING: " << cash << '\n' << endl;
 }
 
 double Player::get_bet_amt() const{ return bet_amt; }
-void Player::update_turn(int i) { turn += i; }
-int Player::get_turn() const{ return turn; }
+double Player::get_cash() const { return cash; }
 
-void Player::bet(double amount) {bet_amt = amount;}
-void Player::split() { 
-    act = ACTION::SPLIT;
-    hand_2.push_back(hand[0]);
-    hand.erase(hand.begin());
+void Player::bet(double amount) {
+    bet_amt = amount;
+}
+void Player::split_hand_1() { 
+    if (hand.size() ==2) hand.erase(hand.begin());
     deal();
 }
-void Player::double_down() {act = ACTION::DOUBLE;}
+void Player::split_hand_2(){
+    if (hand.size() == 2) hand.pop_back();
+    deal();
+}
+void Player::double_down() {
+    act = Action::DOUBLE;
+    bet_amt += bet_amt;
+}
 void Player::surrender() {cash -= 0.5 * (bet_amt);}
 
-double Player::settleBet(RESULT res) {
+void Player::settleBet(RESULT res) {
+    double actual_bet = bet_amt * old_cash;  // Convert proportion to actual amount
     switch (res) {
-    case RESULT::WIN: cash += bet_amt; return bet_amt;
-    case RESULT::LOSS: cash -= bet_amt; return -bet_amt;
-    default: return 0;
+    case RESULT::WIN:
+        cash += actual_bet * 1.5;  
+    case RESULT::LOSS:
+        cash -= actual_bet;
     }
 }
-ACTION Player::get_action() const{return act;}
+Action Player::get_action() const{return act;}
 
-
-Player player(100);
-Dealer dealer;
-/* ================= UPDATE Q TABLE VALUES =====================*/
-
-static optional<Reward> get_reward() {
-    if (dealer.get_hand_val() > player.get_hand_val() && dealer.get_hand_val() <= 21 || player.get_hand_val() > 21) {
-        cout << "YOU LOST!" << endl;
-        return player.settleBet(RESULT::LOSS);
+void Dealer::play(){
+    while (get_hand_val() <= 17) {
+        deal();
     }
-    if (dealer.get_hand_val() < player.get_hand_val() && player.get_hand_val() <= 21 || (dealer.get_hand_val() > 21 && player.get_hand_val() < 21)) {
-        cout << "YOU WON!" << endl;
-        return player.settleBet(RESULT::WIN);
+}
+void Dealer::show_hand(){
+    if (verbose) cout <<"DEALER'S HAND: ";
+    Game::show_hand();
+}
+
+double get_reward(Player &player, Dealer &dealer) {
+    if (player.get_hand_val() == 21 && dealer.get_hand_val() != 21) {
+        if (verbose) cout << "YOU WON!" << endl;
+        player.settleBet(RESULT::WIN);
+        return (player.get_action() == Action::DOUBLE) ? 2.0 : 1.0;
+    }
+    if ((dealer.get_hand_val() > player.get_hand_val() && dealer.get_hand_val() <= 21) || player.get_hand_val() > 21) {
+        if (verbose) cout << "YOU LOST!" << endl;
+        player.settleBet(RESULT::LOSS);
+        return (player.get_action() == Action::DOUBLE) ? -2.0 : -1.0;
+    }
+    if ((dealer.get_hand_val() < player.get_hand_val() && player.get_hand_val() <= 21)|| (dealer.get_hand_val() > 21 && player.get_hand_val() < 21)) {
+        if (verbose) cout << "YOU WON! HAND VAL: "<<player.get_hand_val() << endl;
+        player.settleBet(RESULT::WIN);
+        return (player.get_action() == Action::DOUBLE) ? 2.0 : 1.0;
     }
     if (dealer.get_hand_val() == player.get_hand_val() && player.get_hand_val() <= 21 && dealer.get_hand_val() <= 21) {
-        cout << "YOU TIED!" << endl;
-        return player.settleBet(RESULT::TIE);
+        if (verbose) cout << "YOU TIED!" << endl;
+        player.settleBet(RESULT::TIE);
+        return 0.0;
     }
-    return nullopt; 
-}
-
-static State update_and_return_state() {
-    State state;
-    state.amt_bet = player.get_bet_amt();
-    state.hand_val = player.get_hand_val();
-    state.dealer_val = dealer.get_hand_val();
-
-    if (Q_TABLE.find(state) == Q_TABLE.end()) {
-        state.id += Q_TABLE.size() + 1;
+    if (player.get_cash() <=0){
+        if (verbose) cout << "YOU LOST! OUT OF CASH!" << endl;
+        player.settleBet(RESULT::LOSS);
+        return -1;
     }
-    return state;
+    return 0.0; 
 }
-
 
 /*========================= RUN GAME =========================*/
 
-void run_game() {
-    rng.seed(time(nullptr));
+Node* run_game(Player &player, Dealer &dealer) {
+    bool busted = false;
 
-    //run the simulation and try to find best moves
-    player.bet(0.2);
-    cout << "YOUR BET: " << player.get_bet_amt() << endl;
+    Node* prev_node = nullptr;
+    Node* end_node = nullptr;
 
+    while (true){
+        player.show_hand();
+
+        Action act = game_strategy(player, dealer);
+        State state = update_and_return_state(player, dealer);
+        
+        Node* n = create_node(state, act);
+        n->previous = prev_node;
+        prev_node = n;
+
+        if (act == Action::HIT) player.hit();
+
+        else if (act == Action::STAND) {
+            end_node = n;
+            break;
+        }
+        else if (act == Action::DOUBLE) {
+            player.double_down();  // apply hit + double bet
+            end_node = n;
+            break;
+        }
+    
+        if (player.get_hand_val() == 21){
+            end_node = n;
+            break;
+        }
+        if (player.get_hand_val() > 21){
+            busted = true;
+            end_node = n;
+            break;
+        }
+    }
+
+    if (!busted){
+        dealer.play();
+        dealer.show_hand();
+    }
+
+    return end_node;
+}
+
+void training(Player &player, Node* node, Dealer &dealer){
+    double reward = get_reward(player, dealer);
+    if (verbose) {
+        cout <<endl;
+        cout <<"========= GAME LOG ================="<<endl;
+    }
+
+    if (node) {
+        node->reward = reward;
+        update_table(node);
+        cleanNodes(node);
+    }
+}
+
+double bet_strategy(Player &player){
+
+    uniform_int_distribution<int> dist(1,10);
+    return static_cast<double>(dist(rng))/10.0;
+}
+
+Action game_strategy(Player &player, Dealer &dealer) {
+    // use vector instead of map
+    vector<pair<double, Action>> q_to_act;  
+    Action action = Action::NONE; // default
+
+    for (auto &[state, id] : STATES) {
+        if (player.get_hand_val() == state.hand_val && 
+            dealer.get_hand_val() == state.dealer_val &&
+            state.amt_bet == player.get_bet_amt()) 
+        {
+            if (Q_TABLE.size() <= id){
+                Q_TABLE.resize(id+1);
+                Q_TABLE[id] = {0,0,0,0,0};
+            }
+            for (auto act : {Action::HIT, Action::STAND, Action::SPLIT, Action::DOUBLE}) {
+                q_to_act.push_back({Q_TABLE[id][static_cast<int>(act)], act});
+            }
+        }
+
+    if (rand() % 10 < exploration_prob) {
+        if(player.get_hand_size() == 2) {
+            action = static_cast<Action>(rand() % 3); 
+        }
+        else {
+            action = static_cast<Action>(rand() % 2);
+        }
+    } 
+    else {
+        if (!q_to_act.empty()) {
+            auto max_pair = *max_element(q_to_act.begin(), q_to_act.end(),
+                                        [](const auto &a, const auto &b){ return a.first < b.first; });
+            action = max_pair.second;
+        }
+    }
+    }
+    return action;
+
+}
+
+void game(Player &player, Dealer &dealer){
+    if (verbose) {
+        cout <<endl;
+        cout <<"========= INITIALIZING GAME ==========="<<endl;
+    }
+    double bet_amt = bet_strategy(player);
+    player.bet(bet_amt);
+
+    if (verbose) cout << "YOUR BET: " << player.get_bet_amt() << endl;
+    
     player.deal();
     player.deal();
     dealer.deal();
 
-    cout << "YOUR HAND: ";
+    if (verbose) cout << "YOUR HAND: ";
     player.show_hand();
 
-    cout << "DEALER'S HAND: ";
-    dealer.show_hand();
-    cout << "\n\n\n";
-
-    ACTION act = player.get_action();
-    int i = 0;
-    bool busted = false;
-
-    while (act != ACTION::STAND){
-        
-        if (i == 0)player.split();
-        else if (i != 0) player.hit();
-        ++i;
-        cout << "YOUR HAND: ";
-        player.show_hand();
- 
-        act = player.get_action();
-        player.update_turn(i);
-
-        State state = update_and_return_state();
-        Node* node = create_node(state, act);
-        if (player.get_hand_val() > 21) {
-            busted = true; 
-            break;
-        }
-       
-    }
-
-    //DEALER
-    while (dealer.get_hand_val() <= 17 && !busted) {
-        dealer.deal();
-    }
-
-    cout << "DEALER'S HAND: ";
+    if (verbose) cout << "DEALER'S HAND: ";
     dealer.show_hand();
 
-    optional<Reward> reward = get_reward();
-    cout << endl;
-    if (reward) cout << *reward << endl;
+    bool split = false;
+    bool double_down = false;
+
+    if (game_strategy(player, dealer) == Action::DOUBLE) {
+        double_down = true;
+    }
+    if (game_strategy(player, dealer) == Action::SPLIT) {
+        split = true;
+        player.split_hand_1();
+    }
+    if (verbose) {
+        cout <<endl;
+        cout <<"========== RUNNING GAME ==========="<<endl;
+    }
+    
+    if (double_down) player.double_down();
+    Node* trajectory = run_game(player, dealer);
+    training(player, trajectory, dealer);
+
+    dealer.clear_hand();
+    player.clear_hand();
 }

@@ -7,7 +7,17 @@
 #include <string>
 #include <unordered_map>
 #include <optional>
+#include <sstream>
+#include <fstream>
+#include <stack>
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
 
+inline std::random_device rd;
+extern std::mt19937 rng;
+extern bool verbose;
 
 inline std::map<char, int> card_vals = {
     {'A', 11}, {'2', 2}, {'3', 3}, {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7}, 

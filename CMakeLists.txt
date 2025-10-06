@@ -7,7 +7,6 @@ add_executable(Blackjack
     src/main.cpp
     src/game.cpp
     src/simulation.cpp
-    src/helpers.cpp
 )
 target_include_directories(Blackjack PRIVATE include)
 
