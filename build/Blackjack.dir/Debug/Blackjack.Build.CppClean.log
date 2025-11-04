@@ -1,6 +1,9 @@
 c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\vc143.pdb
-c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\simulation.obj
-c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\game.obj
+c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\helpers.obj
+c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\files.obj
+c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\q_table_validation.obj
+c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\qlearning.obj
+c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\training.obj
 c:\users\annie\documents\cppprojects\backjack\build\blackjack.dir\debug\main.obj
 c:\users\annie\documents\cppprojects\backjack\build\cmakefiles\generate.stamp
 c:\users\annie\documents\cppprojects\backjack\build\debug\blackjack.exe

@@ -382,8 +382,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\main.cpp" />
-    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\game.cpp" />
-    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\simulation.cpp" />
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\training.cpp" />
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\qlearning.cpp" />
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\q_table_validation.cpp" />
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\files.cpp" />
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\helpers.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

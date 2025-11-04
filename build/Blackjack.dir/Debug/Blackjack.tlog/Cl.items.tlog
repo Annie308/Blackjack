@@ -1,3 +1,6 @@
 C:\Users\annie\Documents\CppProjects\Backjack\src\main.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\main.obj
-C:\Users\annie\Documents\CppProjects\Backjack\src\game.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\game.obj
-C:\Users\annie\Documents\CppProjects\Backjack\src\simulation.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\simulation.obj
+C:\Users\annie\Documents\CppProjects\Backjack\src\training.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\training.obj
+C:\Users\annie\Documents\CppProjects\Backjack\src\qlearning.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\qlearning.obj
+C:\Users\annie\Documents\CppProjects\Backjack\src\q_table_validation.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\q_table_validation.obj
+C:\Users\annie\Documents\CppProjects\Backjack\src\files.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\files.obj
+C:\Users\annie\Documents\CppProjects\Backjack\src\helpers.cpp;C:\Users\annie\Documents\CppProjects\Backjack\build\Blackjack.dir\Debug\helpers.obj

@@ -4,10 +4,19 @@
     <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\game.cpp">
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\training.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\simulation.cpp">
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\qlearning.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\q_table_validation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\annie\Documents\CppProjects\Backjack\src\helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

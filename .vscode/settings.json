@@ -66,7 +66,8 @@
         "iomanip": "cpp",
         "ratio": "cpp",
         "sstream": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "q_table_validation": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

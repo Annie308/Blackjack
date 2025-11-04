@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
+#include <numeric>
 
 inline std::random_device rd;
 extern std::mt19937 rng;
